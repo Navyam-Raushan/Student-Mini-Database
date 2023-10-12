@@ -46,6 +46,7 @@ class AgeCalculator(QWidget):
         current_year = datetime.now().year
         user_dob = self.dob_edit.text()
 
+
         # This can also be done by concept of list.strip()
         year_of_birth = datetime.strptime(user_dob, "%d/%m/%Y").date().year
         age = current_year - year_of_birth
