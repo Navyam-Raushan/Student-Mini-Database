@@ -11,6 +11,7 @@ class AgeCalculator(QWidget):
     def __init__(self):
         # CALL SUPER METHOD TO INHERIT ALL PROPERTY
         super().__init__()
+        self.setWindowTitle("Age Calculator")
         grid = QGridLayout()
 
         name = QLabel("Name:")
