@@ -1,7 +1,9 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, \
-    QLabel, QWidget, QGridLayout, QLineEdit, QPushButton, QMainWindow, QTableWidget
+    QLabel, QWidget, QGridLayout, QLineEdit, QPushButton, QMainWindow, \
+    QTableWidget, QTableWidgetItem
 from PyQt6.QtGui import QAction
 import sys
+import sqlite3
 
 
 class MainWindow(QMainWindow):
@@ -30,11 +32,29 @@ class MainWindow(QMainWindow):
         # set table to central widget
         self.setCentralWidget(self.table)
 
+    # Loading the database data
+    def load_data(self):
+        connection = sqlite3.connect(database="database.db")
+        data_query = connection.execute("SELECT * FROM students")
+
+        # Write data query into a table
+        self.table.setRowCount(0)
+
+        for row_number, row_data in enumerate(data_query):
+            self.table.insertRow(row_number)
+            for column_number, column_data in enumerate(row_data):
+                # Adding data in cell coordinated use qtablewidgetitem.
+                self.table.setItem(row_number, column_number,
+                                   QTableWidgetItem(str(column_data)))
+
+        connection.close()
+
 
 # INSTANTIATE THE APP THEN CALL ABOVE QWIDGET INSTANCE.
 app = QApplication(sys.argv)
-age_calculator = MainWindow()
+main_window = MainWindow()
 
 # TO SHOW THE APP AND EXIT, REMEMBER ITS A LOOP.
-age_calculator.show()
+main_window.show()
+main_window.load_data()
 sys.exit(app.exec())
