@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, \
-    QLabel, QWidget, QGridLayout, QLineEdit, QPushButton, QMainWindow
+    QLabel, QWidget, QGridLayout, QLineEdit, QPushButton, QMainWindow, QTableWidget
 from PyQt6.QtGui import QAction
 import sys
 
@@ -9,6 +9,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Student Management System")
+        self.setMinimumWidth(500)
 
         # add menu bars
         file_menu = self.menuBar().addMenu("File")
@@ -20,6 +21,14 @@ class MainWindow(QMainWindow):
 
         help_menu_item = QAction("About", self)
         help_menu.addAction(help_menu_item)
+
+        # Central Table
+        self.table = QTableWidget()
+        self.table.setColumnCount(4)
+        self.table.setHorizontalHeaderLabels(("Id", "Name", "Course", "Mobile"))
+
+        # set table to central widget
+        self.setCentralWidget(self.table)
 
 
 # INSTANTIATE THE APP THEN CALL ABOVE QWIDGET INSTANCE.
