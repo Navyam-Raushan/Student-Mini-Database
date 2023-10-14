@@ -1,4 +1,4 @@
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, \
+from PyQt6.QtWidgets import QApplication, QMessageBox, QVBoxLayout, \
     QLabel, QWidget, QStatusBar, QLineEdit, QPushButton, QMainWindow, \
     QTableWidget, QTableWidgetItem, QDialog, QComboBox, QToolBar, QGridLayout
 from PyQt6.QtGui import QAction, QIcon
@@ -197,7 +197,27 @@ class DeleteDialog(QDialog):
         layout.addWidget(no, 1, 2)
 
         self.setLayout(layout)
+        yes.clicked.connect(self.delete_record)
 
+    def delete_record(self):
+        # Write sql queries for delete operation
+        index = main_window.table.currentRow()
+        student_id = main_window.table.item(index, 0).text()
+
+        connection = sqlite3.connect("database.db")
+        cursor = connection.cursor()
+        cursor.execute("DELETE FROM students WHERE id = ?", (student_id,))
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        main_window.load_data()
+        self.close()
+
+        confirmation = QMessageBox()
+        confirmation.setWindowTitle("Message")
+        confirmation.setText("Record was deleted successfully.")
+        confirmation.exec()
 
 # To create a dialog we use QDialog
 class InsertDialog(QDialog):
@@ -249,6 +269,11 @@ class InsertDialog(QDialog):
         cursor.close()
         connection.close()
         main_window.load_data()
+
+        confirmation = QMessageBox()
+        confirmation.setWindowTitle("Message")
+        confirmation.setText("Record was Added successfully.")
+        confirmation.exec()
 
 
 class SearchDialog(QDialog):
