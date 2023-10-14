@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, \
     QLabel, QWidget, QGridLayout, QLineEdit, QPushButton, QMainWindow, \
-    QTableWidget, QTableWidgetItem, QDialog, QComboBox, QBoxLayout
+    QTableWidget, QTableWidgetItem, QDialog, QComboBox
 from PyQt6.QtGui import QAction
 import sys
 import sqlite3
@@ -28,6 +28,14 @@ class MainWindow(QMainWindow):
 
         help_menu_item = QAction("About", self)
         help_menu.addAction(help_menu_item)
+
+        # Adding edit menu and search dialog
+        edit_menu = self.menuBar().addMenu("&Edit")
+        search_bar_action = QAction("Search..", self)
+
+        # When search bar is clicked (trigerred)
+        search_bar_action.triggered.connect(self.search)
+        edit_menu.addAction(search_bar_action)
 
         # Central Table
         self.table = QTableWidget()
@@ -61,6 +69,10 @@ class MainWindow(QMainWindow):
     def insert(self):
         insert_dialog = InsertDialog()
         insert_dialog.exec()
+
+    def search(self):
+        search_dialog = SearchDialog()
+        search_dialog.exec()
 
 
 # To create a dialog we use QDialog
@@ -96,8 +108,9 @@ class InsertDialog(QDialog):
         layout.addWidget(button)
 
         self.setLayout(layout)
-    def add_student(self):
 
+    # To add any new student.
+    def add_student(self):
         s_name = self.name.text()
         # Important how we get current index value
         s_course = self.course_name.currentText()
@@ -111,6 +124,24 @@ class InsertDialog(QDialog):
         connection.commit()
         cursor.close()
         connection.close()
+        main_window.load_data()
+
+
+class SearchDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Search Student")
+        self.setFixedWidth(300)
+        self.setFixedHeight(300)
+
+        layout = QVBoxLayout()
+
+        search_name = QLineEdit()
+        search_name.setPlaceholderText("Name")
+        layout.addWidget(search_name)
+
+        self.setLayout(layout)
+
 
 # INSTANTIATE THE APP THEN CALL ABOVE QWIDGET INSTANCE.
 app = QApplication(sys.argv)
