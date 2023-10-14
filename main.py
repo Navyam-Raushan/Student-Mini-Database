@@ -1,7 +1,7 @@
 from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, \
-    QLabel, QWidget, QGridLayout, QLineEdit, QPushButton, QMainWindow, \
-    QTableWidget, QTableWidgetItem, QDialog, QComboBox
-from PyQt6.QtGui import QAction
+    QLabel, QWidget, QStatusBar, QLineEdit, QPushButton, QMainWindow, \
+    QTableWidget, QTableWidgetItem, QDialog, QComboBox, QToolBar
+from PyQt6.QtGui import QAction, QIcon
 from PyQt6.QtCore import Qt
 import sys
 import sqlite3
@@ -22,7 +22,7 @@ class MainWindow(QMainWindow):
         # add submenu for both
         # Two big errors encountered self.insert() must not call the method otherwise main window will
         # not be shown, secondly QVBoxLayout() must instantiate the object.
-        file_menu_item = QAction("Add Student", self)
+        file_menu_item = QAction(QIcon("icons/add.png"), "Add Student", self)
         file_menu_item.triggered.connect(self.insert)
         # add_student_action = QAction("Add student", self)
         # add_student_action.triggered.connect(self.insert)
@@ -33,7 +33,7 @@ class MainWindow(QMainWindow):
 
         # Adding edit menu and search dialog
         edit_menu = self.menuBar().addMenu("&Edit")
-        search_bar_action = QAction("Search..", self)
+        search_bar_action = QAction(QIcon("icons/search.png"), "Search..", self)
 
         # When search bar is clicked (trigerred)
         search_bar_action.triggered.connect(self.search)
@@ -48,6 +48,21 @@ class MainWindow(QMainWindow):
         self.table.verticalHeader().setVisible(False)
         # set table to central widget
         self.setCentralWidget(self.table)
+
+        # Adding Toolbar to Main Window.
+        toolbar = QToolBar()
+        toolbar.setMovable(True)
+        toolbar.addAction(file_menu_item)
+        toolbar.addAction(search_bar_action)
+        self.addToolBar(toolbar)
+
+        # Adding Status Bar to Main window
+        self.statusbar = QStatusBar()
+        self.setStatusBar(self.statusbar)
+
+        # detect a cell click
+        # then show edit and delete button
+        self.table.cellClicked.connect(self.cell_click)
 
     # Loading the database data
     def load_data(self):
@@ -76,6 +91,40 @@ class MainWindow(QMainWindow):
         search_dialog = SearchDialog()
 
         search_dialog.exec()
+
+    def cell_click(self):
+        edit_button = QPushButton("Edit")
+        # when edit button is clicked we allow user to edit entries.
+        edit_button.clicked.connect(self.edit)
+
+        delete_button = QPushButton("Delete")
+        delete_button.clicked.connect(self.delete)
+        # Before adding we have to remove previous present button
+
+        children = self.findChildren(QPushButton)
+        if children:
+            for child in children:
+                self.statusbar.removeWidget(child)
+
+        self.statusbar.addWidget(edit_button)
+        self.statusbar.addWidget(delete_button)
+
+    def edit(self):
+
+        edit_dialog = EditDialog()
+        edit_dialog.exec()
+
+    def delete(self):
+        delete_dialog = DeleteDialog()
+        delete_dialog.exec()
+
+
+class EditDialog(QDialog):
+    pass
+
+
+class DeleteDialog(QDialog):
+    pass
 
 
 # To create a dialog we use QDialog
@@ -168,7 +217,6 @@ class SearchDialog(QDialog):
 
             cursor.close()
             connection.close()
-
 
 
 # INSTANTIATE THE APP THEN CALL ABOVE QWIDGET INSTANCE.
