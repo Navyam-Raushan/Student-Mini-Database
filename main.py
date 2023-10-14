@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, \
     QLabel, QWidget, QGridLayout, QLineEdit, QPushButton, QMainWindow, \
     QTableWidget, QTableWidgetItem, QDialog, QComboBox
 from PyQt6.QtGui import QAction
+from PyQt6.QtCore import Qt
 import sys
 import sqlite3
 
@@ -12,6 +13,7 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle("Student Management System")
         self.setMinimumWidth(500)
+        self.setMinimumHeight(400)
 
         # add menu bars
         file_menu = self.menuBar().addMenu("&File")
@@ -72,6 +74,7 @@ class MainWindow(QMainWindow):
 
     def search(self):
         search_dialog = SearchDialog()
+
         search_dialog.exec()
 
 
@@ -136,11 +139,36 @@ class SearchDialog(QDialog):
 
         layout = QVBoxLayout()
 
-        search_name = QLineEdit()
-        search_name.setPlaceholderText("Name")
-        layout.addWidget(search_name)
+        self.search_name = QLineEdit()
+        self.search_name.setPlaceholderText("Name")
+        layout.addWidget(self.search_name)
+
+        search_button = QPushButton("Search")
+        search_button.clicked.connect(self.search_)
+        layout.addWidget(search_button)
 
         self.setLayout(layout)
+
+    def search_(self):
+        name = self.search_name.text()
+        connection = sqlite3.connect("database.db")
+        cursor = connection.cursor()
+
+        search_results = cursor.execute("SELECT * FROM students WHERE name = ?", (name,))
+
+        # Now match the occurences with search_results and table data
+        rows = list(search_results)
+        print(rows)
+
+        items = main_window.table.findItems(name, Qt.MatchFlag.MatchFixedString)
+        for item in items:
+            print(item)
+            # item.row  will return the row number set selected will highlight it.
+            main_window.table.item(item.row(), 1).setSelected(True)
+
+            cursor.close()
+            connection.close()
+
 
 
 # INSTANTIATE THE APP THEN CALL ABOVE QWIDGET INSTANCE.
