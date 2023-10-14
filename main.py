@@ -99,8 +99,8 @@ class MainWindow(QMainWindow):
 
         delete_button = QPushButton("Delete")
         delete_button.clicked.connect(self.delete)
-        # Before adding we have to remove previous present button
 
+        # Before adding we have to remove previous present button
         children = self.findChildren(QPushButton)
         if children:
             for child in children:
@@ -120,7 +120,65 @@ class MainWindow(QMainWindow):
 
 
 class EditDialog(QDialog):
-    pass
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Insert Student Data")
+        self.setFixedWidth(300)
+        self.setFixedHeight(300)
+
+        layout = QVBoxLayout()
+        # Getting Current index then getting current data of student.
+        selected_row = main_window.table.currentRow()
+
+        # All Data when user select a cell.
+        self.selected_student_id = main_window.table.item(selected_row, 0).text()
+        selected_name = main_window.table.item(selected_row, 1).text()
+        selected_course = main_window.table.item(selected_row, 2).text()
+        selected_mobile = main_window.table.item(selected_row, 3).text()
+
+        # Added name widget, don't forget brackets.
+        self.name = QLineEdit(selected_name)
+        # self.name.setPlaceholderText("Name")
+        layout.addWidget(self.name)
+
+        # course widget
+
+        self.course_name = QComboBox()
+        courses = ["Math", "Biology", "Physics", "Astronomy"]
+        self.course_name.addItems(courses)
+        self.course_name.setCurrentText(selected_course)
+        layout.addWidget(self.course_name)
+
+        # Phone widget
+        self.phone = QLineEdit(selected_mobile)
+        # self.phone.setPlaceholderText("+91 4567883322")
+        layout.addWidget(self.phone)
+
+        # Submit button to send it to database
+        button = QPushButton("Update Record")
+        button.clicked.connect(self.update_record)
+        layout.addWidget(button)
+
+        self.setLayout(layout)
+
+    def update_record(self):
+        # Get the data input by user send it to database
+        # Current data would be get from QLineEdit only not clicked data of table.
+        updated_name = self.name.text()
+        updated_course = self.course_name.itemText(self.course_name.currentIndex())
+        updated_phone = self.phone.text()
+
+        connection = sqlite3.connect("database.db")
+        cursor = connection.cursor()
+
+        cursor.execute("UPDATE students SET name = ?, course = ?, mobile = ? WHERE id = ?",
+                       (updated_name, updated_course, updated_phone, self.selected_student_id))
+        connection.commit()
+        cursor.close()
+        connection.close()
+
+        # Updating table again..
+        main_window.load_data()
 
 
 class DeleteDialog(QDialog):
