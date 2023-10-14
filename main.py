@@ -179,6 +179,12 @@ class EditDialog(QDialog):
 
         # Updating table again..
         main_window.load_data()
+        self.close()
+
+        confirmation = QMessageBox()
+        confirmation.setWindowTitle("Message")
+        confirmation.setText("Record was edited Successfully.")
+        confirmation.exec()
 
 
 class DeleteDialog(QDialog):
@@ -198,6 +204,10 @@ class DeleteDialog(QDialog):
 
         self.setLayout(layout)
         yes.clicked.connect(self.delete_record)
+        no.clicked.connect(self.close_delete_widget)
+
+    def close_delete_widget(self):
+        self.close()
 
     def delete_record(self):
         # Write sql queries for delete operation
@@ -269,7 +279,7 @@ class InsertDialog(QDialog):
         cursor.close()
         connection.close()
         main_window.load_data()
-
+        self.close()
         confirmation = QMessageBox()
         confirmation.setWindowTitle("Message")
         confirmation.setText("Record was Added successfully.")
