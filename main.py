@@ -30,6 +30,7 @@ class MainWindow(QMainWindow):
 
         help_menu_item = QAction("About", self)
         help_menu.addAction(help_menu_item)
+        help_menu_item.triggered.connect(self.about)
 
         # Adding edit menu and search dialog
         edit_menu = self.menuBar().addMenu("&Edit")
@@ -75,12 +76,12 @@ class MainWindow(QMainWindow):
         for row_number, row_data in enumerate(data_query):
             self.table.insertRow(row_number)
             for column_number, column_data in enumerate(row_data):
-                print(row_data)
+                # print(row_data)
                 # Adding data in cell coordinated use qtablewidgetitem.
                 self.table.setItem(row_number, column_number,
                                    QTableWidgetItem(str(column_data)))
 
-        print(list(data_query))
+        # print(list(data_query))
         connection.close()
 
     def insert(self):
@@ -117,6 +118,22 @@ class MainWindow(QMainWindow):
     def delete(self):
         delete_dialog = DeleteDialog()
         delete_dialog.exec()
+
+    def about(self):
+        about_dialog = AboutDialog()
+        about_dialog.exec()
+
+class AboutDialog(QMessageBox):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("About")
+
+        content = """
+        We have made this app using sqlite, Feel free to Use this
+        And to give any suggestion fork on Github.
+        """
+        self.setText(content)
+
 
 
 class EditDialog(QDialog):
@@ -314,11 +331,11 @@ class SearchDialog(QDialog):
 
         # Now match the occurences with search_results and table data
         rows = list(search_results)
-        print(rows)
+        # print(rows)
 
         items = main_window.table.findItems(name, Qt.MatchFlag.MatchFixedString)
         for item in items:
-            print(item)
+            # print(item)
             # item.row  will return the row number set selected will highlight it.
             main_window.table.item(item.row(), 1).setSelected(True)
 
